@@ -1,0 +1,21 @@
+; Programa de ejemplo: suma dos valores en memoria y guarda el resultado
+; Arquitectura: ASOC-V
+; Ensamblador soporta: ORG, WORD, #inmediato, directo, indirecto (@), indexado (X)
+
+; Código comienza en 0x0000
+ORG 0x0000
+
+        ; ACC = MEM[DATA1]
+        LD  ACC, [DATA1]
+        ; ACC = ACC + MEM[DATA2]
+        ADD ACC, [DATA2]
+        ; MEM[RESULT] = ACC
+        ST  ACC, [RESULT]
+
+        HALT
+
+; Datos en 0x0100
+ORG 0x0100
+DATA1:  WORD 5
+DATA2:  WORD 7
+RESULT: WORD 0

@@ -1,0 +1,57 @@
+Arquitectura ASOC-V
+    - Bus abierto, 3 buses de 32 bits (direcciones, control y datos)
+    - Instrucciones de 32 bits de tamaño fijo (16 bits para datos | 16 para metadatos)
+    - Sin punto flotante
+    - Números negativos gestionados por C (indeterminado)
+    - MMIO
+    - Dispositivos sincronizados por reloj (0.5Hz)
+    - Dispositivos
+        - GPU: Estado: 0xFFF1
+        - GPU: Datos:  0xFFF0
+        - KBD: Estado: 0xFFF3
+        - KBD: Datos:  0xFFF2
+        - Inhibir bus: 0XFFFF (Para evitar que un dispositivo actue dos veces, sirve cómo ack)
+    - IO basada en espera activa (sin interrupciones ni dma)
+    - Emulación de dispositivos por FIFO
+    - Pipeline sin segmentar pero con emulación de ciclos
+
+Formato de instrucción:
+    <opcode [8 bits]><id registro[4 bits]><direccionamientp [4 bits]><operando [16 bits]>
+
+Registros (32 bits):
+    PC: Contador de programa
+    X: Index register (propósito general y usado para direccionamiento indexado)
+    ACC: Acumulador (propósito general)
+    STATUS: Estado
+        - STATUS:0 (Z) flag zero
+        - STATUS:1 (N) flag negativo
+        - STATUS:2 (C) flag carry (numeros sin signo)
+        - STATUS:3 (V) flag overflow (numeros con signo)
+
+Opcodes:
+    - 0  "ST", // Cargar de memoria a registro
+    - 1  "LD", // Almacenar de registro a memoria
+    - 2  "LDI", // Cargar inmediato a registro
+    - 3  "ADD", // Sumar
+    - 4  "SUB", // Restar
+    - 5  "MUL", // Multiplicar
+    - 6  "DIV", // Dividir
+    - 7  "MOD",  // Módulo
+    - 8  "AND", // AND bit a bit
+    - 9  "OR",  // OR bit a bit
+    - 10 "XOR", // XOR bit a bit
+    - 11 "NOT", // NOT bit a bit
+    - 12 "JMP", // Salto incondicional
+    - 13 "JZ",  // Salto si cero
+    - 14 "JN",  // Salto si negativo
+    - 15 "CLR", // Limpiar registro
+    - 16 "NOP", // No operación
+    - 17 "DEC", // Decrementar
+    - 18 "INC", // Incrementar
+    - 19 "HALT" // Detener ejecución
+
+Modos de direccionamiento:
+    - 0 Inmediato
+    - 1 Directo
+    - 2 Indirecto
+    - 3 Indexado

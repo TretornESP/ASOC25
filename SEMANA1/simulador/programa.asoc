@@ -1,0 +1,59 @@
+; Programa 2: eco con cambio de mayúsculas/minúsculas
+; Lee del teclado y escribe en la GPU intercambiando el caso de las letras
+; 'a'..'z' -> 'A'..'Z' (resta 32), 'A'..'Z' -> 'a'..'z' (suma 32)
+
+; IO MMIO
+; GPU_DATA   = 0xFFF0
+; GPU_STATUS = 0xFFF1 (siempre 1)
+; KBD_DATA   = 0xFFF2
+; KBD_STATUS = 0xFFF3 (1 si hay datos)
+
+ORG 0x0000
+
+POLL:
+        ; Esperar a que haya un byte disponible en teclado
+        LD  ACC, [0xFFF3]     ; leer KBD_STATUS
+        JZ  POLL              ; si 0, volver a chequear
+
+        ; Leer byte del teclado
+        LD  ACC, [0xFFF2]     ; leer KBD_DATA
+        ST  ACC, [C]
+
+        ; ¿c en 'a'..'z'?
+        LD  ACC, [C]
+        SUB ACC, #0x61        ; c - 'a'
+        JN  CHECK_UPPER       ; si < 0, c < 'a'
+        LDI ACC, #0x7A        ; 'z'
+        SUB ACC, [C]          ; 'z' - c
+        JN  CHECK_UPPER       ; si < 0, c > 'z'
+        ; es minúscula -> a mayúscula
+        LD  ACC, [C]
+        SUB ACC, #32
+        ST  ACC, [C]
+        JMP OUTPUT
+
+CHECK_UPPER:
+        ; ¿c en 'A'..'Z'?
+        LD  ACC, [C]
+        SUB ACC, #0x41        ; c - 'A'
+        JN  OUTPUT_ORIG       ; si < 0, c < 'A'
+        LDI ACC, #0x5A        ; 'Z'
+        SUB ACC, [C]          ; 'Z' - c
+        JN  OUTPUT_ORIG       ; si < 0, c > 'Z'
+        ; es mayúscula -> a minúscula
+        LD  ACC, [C]
+        ADD ACC, #32
+        ST  ACC, [C]
+        JMP OUTPUT
+
+OUTPUT_ORIG:
+        ; No cambiar C
+
+OUTPUT:
+        LD  ACC, [C]
+        ST  ACC, [0xFFF0]     ; escribir a GPU_DATA
+        JMP POLL
+
+; Datos
+ORG 0x0200
+C:      WORD 0
