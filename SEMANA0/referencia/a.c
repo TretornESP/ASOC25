@@ -1,4 +1,5 @@
 int suma(int x, int * y) {
+    printf("Y: %p\n", y);
     y += 2;
     return x + *y;
 }
@@ -6,8 +7,8 @@ int suma(int x, int * y) {
 int main() {
     int a = 5;
     int b = 6;
-
-    int result = suma(a, &b);
+    printf("A está en: %p\n", &a);
+    int result = suma(a, b);
 
 
     printf("La suma es: %d\n", result);
